@@ -58,14 +58,19 @@ def main():
             "Quanto piace alla nonna Manu",      # Nuovo fattore 2
             "Quanto piace al nonno",              # Nuovo fattore 3
             "Come sarà la casa tra 10 anni?",      # Nuovo fattore 4
-            "Facilità di rivendita futura"         # Nuovo fattore 5
+            "Facilità di rivendita futura",        # Nuovo fattore 5
+            "Presenza ascensore",                  # Nuovo fattore 6
+            "Piano dell'appartamento",             # Nuovo fattore 7
+            "Vista",                               # Nuovo fattore 8
+            "Presenza di balcone e terrazzo",      # Nuovo fattore 9
+            "Presenza di giardino privato o condominiale"  # Nuovo fattore 10
         ]
 
         st.header("Assegna pesi ai fattori")
         st.write("Indica l'importanza di ciascun fattore (1 = meno importante, 10 = importantissimo)")
         weights = {}
         for factor in factors:
-            weights[factor] = st.slider(f"Peso per '{factor}'", 1, 10, 5)
+            weights[factor] = st.slider(f"Peso per '{factor}'", 1, 10, 1)
 
         # Scegli il metodo di valutazione
         st.header("Metodo di valutazione")
@@ -95,7 +100,7 @@ def main():
                 cols = st.columns(3)
                 for j, alt in enumerate(alternatives):
                     with cols[j]:
-                        data[alt][i] = st.slider(f"{alt}", 1, 10, 5, key=f"{factor}_{alt}")
+                        data[alt][i] = st.slider(f"{alt}", 1, 10, 1, key=f"{factor}_{alt}")
         else:
             for alt in alternatives:
                 st.subheader(f"Valutazione per {alt}")
@@ -106,7 +111,7 @@ def main():
                         extra_info = casa10_info
                     elif factor == "Facilità di rivendita futura":
                         extra_info = " (Considera: ubicazione, stato di conservazione, vicinanza a servizi e attrattiva per futuri acquirenti)"
-                    data[alt][i] = st.slider(f"'{factor}'{extra_info}", 1, 10, 5, key=f"{alt}_{factor}")
+                    data[alt][i] = st.slider(f"'{factor}'{extra_info}", 1, 10, 1, key=f"{alt}_{factor}")
 
         # Bottone per mostrare i risultati
         if st.button("MOSTRA I RISULTATI", key="show_results"):
@@ -168,7 +173,6 @@ def main():
                 # Scrivi le informazioni dell'utente nella prima parte (es. riga 0)
                 info_df = pd.DataFrame([f"Utente: {st.session_state.user_name}"])
                 info_df.to_excel(writer, index=False, header=False, startrow=0)
-                # Lascia una riga vuota (riga 1) e una riga vuota (riga 2)
                 # Scrivi la matrice decisionale a partire dalla riga 3
                 df_display.to_excel(writer, startrow=3, index=True)
 
@@ -185,7 +189,8 @@ def main():
             bot_token = st.secrets.telegram.bot_token  # Token dal file secrets
             chat_id = st.secrets.telegram.chat_id          # Chat ID dal file secrets
             telegram_url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
-            files = {"document": ("decision_matrix_results.xlsx", excel_buffer.getvalue(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+            files = {"document": ("decision_matrix_results.xlsx", excel_buffer.getvalue(),
+                                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
             data_payload = {"chat_id": chat_id}
             response = requests.post(telegram_url, data=data_payload, files=files)
             if response.status_code == 200:
